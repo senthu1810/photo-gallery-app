@@ -153,8 +153,14 @@ $stmt->close();
     </button>
   </div>
 
+  <!-- Search Bar -->
+<div class="input-group mb-3">
+  <span class="input-group-text"><i class="bi bi-search"></i></span>
+  <input type="text" id="albumSearch" class="form-control" placeholder="Search albums...">
+</div>
+
   <!-- Albums grid -->
-  <div class="row g-3">
+  <div class="row g-3" id="albumsContainer">
     <?php if (empty($albums)): ?>
       <div class="col-12">
         <div class="text-center text-muted py-5">
@@ -257,5 +263,18 @@ $stmt->close();
     location.reload(); // simple reset
   }
 </script>
+
+<script>
+document.getElementById('albumSearch').addEventListener('keyup', function() {
+  const query = this.value;
+  fetch('search_albums.php?q=' + encodeURIComponent(query))
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById('albumsContainer').innerHTML = data;
+    })
+    .catch(err => console.error(err));
+});
+</script>
+
 </body>
 </html>
