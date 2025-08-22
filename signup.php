@@ -32,6 +32,18 @@
       }
       return true;
     }
+
+    // Real-time validation (Example: Name field)
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("name").addEventListener("input", function () {
+        let name = this.value;
+        if (name.length < 3) {
+          this.style.borderColor = "red";
+        } else {
+          this.style.borderColor = "green";
+        }
+      });
+    });
   </script>
 </head>
 <body class="bg-light">
@@ -60,7 +72,9 @@
                         VALUES ('$name', '$phone', '$email', '$hashed_password')";
 
                 if ($conn->query($sql) === TRUE) {
-                    echo "<div class='alert alert-success'>Registration successful! <a href='login.php'>Login now</a></div>";
+                    echo "<div class='alert alert-success' role='alert'>
+                            🎉 Registration successful! <a href='login.php' class='alert-link'>Login now</a>
+                          </div>";
                 } else {
                     echo "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
                 }
@@ -72,11 +86,11 @@
     <form name="signupForm" method="POST" action="" onsubmit="return validateSignupForm()">
       <div class="mb-3">
         <label>Name</label>
-        <input type="text" name="name" class="form-control">
+        <input type="text" id="name" name="name" class="form-control" oninput="this.value=this.value.toUpperCase()">
       </div>
       <div class="mb-3">
         <label>Phone</label>
-        <input type="text" name="phone" class="form-control">
+        <input type="text" name="phone" class="form-control" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
       </div>
       <div class="mb-3">
         <label>Email</label>
