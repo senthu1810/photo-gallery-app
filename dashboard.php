@@ -181,13 +181,14 @@ $stmt->close();
                   <button class="btn btn-outline-secondary" title="Rename" onclick="startRename(<?php echo $a['id']; ?>)">
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  <form method="POST" action="" onsubmit="return confirm('Delete this album and all its contents?');">
-                    <input type="hidden" name="action" value="delete_album">
-                    <input type="hidden" name="album_id" value="<?php echo $a['id']; ?>">
-                    <button type="submit" class="btn btn-outline-danger" title="Delete">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </form>
+                  <form method="POST" action="" id="delete-form-<?php echo $a['id']; ?>">
+  <input type="hidden" name="action" value="delete_album">
+  <input type="hidden" name="album_id" value="<?php echo $a['id']; ?>">
+  <button type="button" class="btn btn-outline-danger" title="Delete" onclick="confirmDelete(<?php echo $a['id']; ?>)">
+    <i class="bi bi-trash"></i>
+  </button>
+</form>
+
                 </div>
               </div>
               <div class="text-muted small mb-3">
@@ -198,9 +199,10 @@ $stmt->close();
                   <i class="bi bi-eye me-1"></i>Open
                 </a>
                 <div id="rename-controls-<?php echo $a['id']; ?>" class="d-none">
-                  <button class="btn btn-primary btn-sm btn-rounded me-1" onclick="saveRename(<?php echo $a['id']; ?>)">Save</button>
-                  <button class="btn btn-secondary btn-sm btn-rounded" onclick="cancelRename(<?php echo $a['id']; ?>)">Cancel</button>
-                </div>
+  <button class="btn btn-primary btn-sm btn-rounded me-1" onclick="openRenameConfirm(<?php echo $a['id']; ?>)">Save</button>
+  <button class="btn btn-secondary btn-sm btn-rounded" onclick="cancelRename(<?php echo $a['id']; ?>)">Cancel</button>
+</div>
+
               </div>
             </div>
           </div>
@@ -239,6 +241,44 @@ $stmt->close();
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Confirm Delete</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this album and all its contents?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rename Confirmation Modal -->
+<div class="modal fade" id="renameConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Confirm Rename</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Do you want to rename this album to <strong id="renameAlbumName"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="confirmRenameBtn">Yes, Rename</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   function startRename(id) {
@@ -263,6 +303,45 @@ $stmt->close();
     location.reload(); // simple reset
   }
 </script>
+<script>
+let deleteAlbumId = null;
+let renameAlbumId = null;
+let renameNewName = "";
+
+function confirmDelete(id) {
+  deleteAlbumId = id;
+  const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+  modal.show();
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+  if (deleteAlbumId) {
+    document.getElementById('delete-form-' + deleteAlbumId).submit();
+  }
+});
+
+function openRenameConfirm(id) {
+  const title = document.getElementById('title-' + id);
+  const newName = title.innerText.trim();
+  if (!newName) {
+    alert("Album name cannot be empty.");
+    return;
+  }
+  renameAlbumId = id;
+  renameNewName = newName;
+  document.getElementById('renameAlbumName').innerText = newName;
+  const modal = new bootstrap.Modal(document.getElementById('renameConfirmModal'));
+  modal.show();
+}
+
+document.getElementById('confirmRenameBtn').addEventListener('click', function() {
+  if (renameAlbumId && renameNewName) {
+    document.getElementById('new-name-' + renameAlbumId).value = renameNewName;
+    document.getElementById('rename-form-' + renameAlbumId).submit();
+  }
+});
+</script>
+
 
 <script>
 document.getElementById('albumSearch').addEventListener('keyup', function() {
